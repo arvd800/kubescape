@@ -1,49 +1,31 @@
+/*
+Copyright 2021 ARMO Systems
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package main
 
 import (
-	"context"
 	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/kubescape/backend/pkg/versioncheck"
-	"github.com/kubescape/go-logger"
 	"github.com/kubescape/kubescape/v3/cmd"
 )
 
-// GoReleaser will fill these at build time
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-)
-
+// main is the entry point for the kubescape CLI.
+// It delegates execution to the cmd package which uses cobra for command management.
 func main() {
-	// Set the global build number for version checking
-	versioncheck.BuildNumber = version
-
-	// Capture interrupt signal on a dedicated channel so the watcher can
-	// distinguish a real signal from a normal cancel() on graceful exit.
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
-	defer signal.Stop(sigCh)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	go func() {
-		select {
-		case <-sigCh:
-			logger.L().StopError("Received interrupt signal, exiting...")
-			// Clear the signal handler so a second signal terminates immediately.
-			signal.Stop(sigCh)
-			cancel()
-		case <-ctx.Done():
-			// Normal shutdown — no log line.
-		}
-	}()
-
-	if err := cmd.Execute(ctx, version, commit, date); err != nil {
-		cancel()
-		logger.L().Fatal(err.Error())
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
 	}
 }
