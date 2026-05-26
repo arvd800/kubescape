@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/kubescape/kubescape/v3/cmd"
@@ -24,8 +25,12 @@ import (
 
 // main is the entry point for the kubescape CLI.
 // It delegates execution to the cmd package which uses cobra for command management.
+//
+// Personal fork note: Added non-zero exit code printing to make it easier to
+// debug failures in scripts without having to check $? separately.
 func main() {
 	if err := cmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
