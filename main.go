@@ -29,6 +29,10 @@ import (
 // Personal fork note: Added non-zero exit code printing to make it easier to
 // debug failures in scripts without having to check $? separately.
 // Also prints the exit code explicitly so scripts can capture it from stderr.
+//
+// TODO(me): Look into whether we can surface a more descriptive error message
+// when the kubeconfig is missing or misconfigured, since that's the most
+// common failure I run into locally.
 func main() {
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
