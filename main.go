@@ -28,9 +28,11 @@ import (
 //
 // Personal fork note: Added non-zero exit code printing to make it easier to
 // debug failures in scripts without having to check $? separately.
+// Also prints the exit code explicitly so scripts can capture it from stderr.
 func main() {
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Exit code: 1\n")
 		os.Exit(1)
 	}
 }
